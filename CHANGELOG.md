@@ -2,6 +2,11 @@
 
 ## [1.3.0] - 2025-11-09
 
+### Hotfixes (Same Day)
+- **Removed Vercel Analytics** - Not needed for self-hosted deployment
+- **Fixed Profile API 401 Errors** - Next.js 16 params must be awaited
+- **Fixed Profile Data Display** - Users now see all their listings/bids (including hidden)
+
 ### Added
 - **User Profile System** (`/profile`)
   - View all listings with stats
