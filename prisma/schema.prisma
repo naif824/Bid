@@ -1,0 +1,53 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id             String   @id
+  title          String
+  description    String?
+  imageUrl       String?  @map("image_url")
+  images         String[] @default([])
+  thumbnails     String[] @default([])
+  city           String
+  startingPrice  Float    @map("starting_price")
+  currentPrice   Float    @map("current_price")
+  sellerName     String   @map("seller_name")
+  sellerPhone    String   @default("966000000000") @map("seller_phone")
+  createdAt      DateTime @default(now()) @map("created_at")
+  endsAt         DateTime @map("ends_at")
+  hidden         Boolean  @default(false)
+  
+  userId         String   @map("user_id")
+  
+  bids           Bid[]
+
+  @@index([userId])
+  @@index([endsAt])
+  @@index([hidden])
+  @@map("items")
+}
+
+model Bid {
+  id          String   @id @default(cuid())
+  amount      Float
+  bidderName  String   @map("bidder_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  itemId      String   @map("item_id")
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  userId      String   @map("user_id")
+
+  @@index([itemId])
+  @@index([userId])
+  @@map("bids")
+}
