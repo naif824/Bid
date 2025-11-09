@@ -1,29 +1,41 @@
-# Auction Platform
+# ⏰ watch.ws - Private Auction Platform
 
-A modern, full-stack auction platform built with Next.js 16, PostgreSQL, Prisma, and NextAuth.js. Features real-time bidding, user authentication, and proper image storage.
+A modern, full-stack private auction platform for friends and family. Built with Next.js 16, PostgreSQL, Prisma, and Clerk authentication. Features real-time bidding, user profiles, admin panel, and beautiful amber-themed UI.
 
-## Features
+**Live:** https://watch.ws  
+**Version:** 1.3.0
 
-✅ **User Authentication** - Secure sign-up and sign-in with NextAuth.js and bcrypt password hashing
-✅ **Real-time Bidding** - Live updates across all devices using Server-Sent Events (SSE)
-✅ **PostgreSQL Database** - Persistent data storage with Prisma ORM
-✅ **Image Upload** - Proper file storage to local filesystem (not base64)
-✅ **Responsive UI** - Modern design with shadcn/ui and TailwindCSS
-✅ **Saudi Arabia Focus** - Pre-configured with Saudi cities
-✅ **Auction Management** - Create listings, place bids, view history
-✅ **Session Management** - JWT-based authentication
+## ✨ Features
 
-## Tech Stack
+### User Features
+✅ **Clerk Authentication** - Secure sign-up and sign-in with email verification  
+✅ **User Profiles** - View your listings, bids, and activity stats  
+✅ **Real-time Bidding** - Live updates across all devices using Server-Sent Events (SSE)  
+✅ **Private Listings** - Share auction links privately with friends and family  
+✅ **Image Upload** - Multiple images with thumbnails  
+✅ **Responsive UI** - Modern amber-themed design with shadcn/ui and TailwindCSS  
+✅ **Saudi Arabia Focus** - Pre-configured with Saudi cities  
+✅ **Bid Status** - See if you're winning or outbid  
+
+### Admin Features
+✅ **Admin Panel** - Dedicated management dashboard at `/mgt`  
+✅ **User Management** - View all users with activity stats  
+✅ **Listing Management** - Hide/show or delete listings  
+✅ **Platform Statistics** - Monitor users, listings, and bids  
+✅ **JWT Authentication** - Separate admin authentication system
+
+## 🛠️ Tech Stack
 
 - **Framework**: Next.js 16.0 (App Router)
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL 14+
 - **ORM**: Prisma 6.0
-- **Authentication**: NextAuth.js 4.24
+- **Authentication**: Clerk (user) + JWT (admin)
 - **UI**: React 19, shadcn/ui, Radix UI, TailwindCSS 4
 - **Real-time**: Server-Sent Events (SSE)
 - **Icons**: Lucide React
 - **Forms**: React Hook Form + Zod
 - **Package Manager**: pnpm
+- **Deployment**: Self-hosted with PM2
 
 ## Prerequisites
 
@@ -59,21 +71,26 @@ CREATE DATABASE auction_db;
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env.local` file in the root directory:
 
 ```bash
-cp env.example .env
+cp env.example .env.local
 ```
 
-Edit `.env` and update the values:
+Edit `.env.local` and update the values:
 
 ```env
 # Database
 DATABASE_URL="postgresql://postgres:your_password@localhost:5432/auction_db?schema=public"
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-change-this-in-production"
+# Clerk Authentication (get from clerk.com)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/auth/signin"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/auth/signin"
+
+# Admin Panel
+ADMIN_JWT_SECRET="your-secure-admin-secret-change-in-production"
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -81,7 +98,8 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 **Important**: 
 - Replace `your_password` with your PostgreSQL password
-- Generate a secure `NEXTAUTH_SECRET` using: `openssl rand -base64 32`
+- Sign up at [clerk.com](https://clerk.com) and get your API keys
+- Generate a secure `ADMIN_JWT_SECRET` using: `openssl rand -base64 32`
 
 ### 4. Initialize Database
 
@@ -184,12 +202,12 @@ npx prisma migrate reset
 └── README.md                    # This file
 ```
 
-## API Endpoints
+## 📡 API Endpoints
 
-### Authentication
-- `POST /api/auth/signin` - Sign in
-- `POST /api/auth/signout` - Sign out
-- `GET /api/auth/session` - Get session
+### User Authentication (Clerk)
+- Handled by Clerk SDK
+- `/auth/signin` - Sign in page
+- `/auth/complete-profile` - Set username
 
 ### Items
 - `GET /api/items` - Get all active items
@@ -198,11 +216,46 @@ npx prisma migrate reset
 - `GET /api/items/[id]/bids` - Get bids for item
 - `POST /api/items/[id]/bids` - Place bid (requires auth)
 
+### User Profile
+- `GET /api/users/[userId]/listings` - Get user's listings
+- `GET /api/users/[userId]/bids` - Get user's bids
+
+### Admin (JWT Auth)
+- `POST /api/admin/login` - Admin login
+- `GET /api/admin/users` - Get all users with stats
+- `GET /api/admin/items` - Get all items with bids
+- `POST /api/admin/items/[itemId]/toggle-hidden` - Hide/show listing
+- `DELETE /api/admin/items/[itemId]` - Delete listing
+
 ### Upload
 - `POST /api/upload` - Upload image (requires auth)
 
 ### Real-time
 - `GET /api/realtime` - SSE endpoint for live updates
+
+## 👤 User Pages
+
+- `/` - Homepage (informative landing page)
+- `/profile` - User profile with listings and bids
+- `/create` - Create new auction listing
+- `/[id]` - Item detail page with bidding
+
+## 🔐 Admin Panel
+
+Access the admin panel at `/mgt`:
+
+**Default Credentials:**
+- Username: `admin`
+- Password: `admin`
+
+**⚠️ Important:** Change these credentials in production!
+
+**Features:**
+- View all users with activity stats
+- View all listings with bid history
+- Hide/show listings
+- Delete listings
+- Platform statistics dashboard
 
 ## Features Explained
 
